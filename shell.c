@@ -11,6 +11,7 @@
 #include <grp.h>
 #include <time.h>
 #include <wait.h>
+#include "manual.c"
 
 int setpgid(pid_t pid, pid_t pgid);
 struct dirent *readdir(DIR *dirp);
@@ -20,6 +21,7 @@ int errno;
 #define MAX_INPUT_SIZE 1024
 #define MAX_TOKEN_SIZE 64
 #define MAX_NUM_TOKENS 64
+void shwo_manual(void);
 
 
 
@@ -229,6 +231,10 @@ int main(int argc, char* argv[]) {
 
 			    continue;
 			}
+		if (strcmp(tokens[0], "man") == 0 || strcmp(tokens[0], "help") ==0) {
+		            show_manual();
+		            continue; }
+		            
                 if (strcmp(tokens[0], "mv") == 0) {
 			    if (tokens[1] == NULL || tokens[2] == NULL) {
 				printf("Usage ERROR: mv <source_file> <destination_file>\n");
@@ -314,6 +320,18 @@ int main(int argc, char* argv[]) {
                       }
 
                    }}
+                   if(strcmp(tokens[0], "sudo") == 0 && strcmp(tokens[1], "apt") == 0 && strcmp(tokens[2], "install") == 0) {
+                                pid_t pid = fork();
+                                if(pid == 0) {
+                                    if(execvp("apt", tokens + 1) < 0) {
+                                        perror("ERROR: Failed to execute sudo apt install");
+                                        exit(1);
+                                    }
+                                } else {
+                                    wait(NULL);
+                                }
+                                continue;
+                            }
 
     pid_t pid = fork();
                 for(i=0;tokens[i+1]!=NULL;i++);
