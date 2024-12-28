@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
         while(1) {
 
                 bzero(line, sizeof(line));
-                printf("<<ishanarya0>> ");
+                printf("<<Arya>> ");
 
                 scanf("%[^\n]", line);
                 getchar();
