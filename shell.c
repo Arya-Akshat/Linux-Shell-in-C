@@ -21,7 +21,7 @@ int errno;
 #define MAX_INPUT_SIZE 1024
 #define MAX_TOKEN_SIZE 64
 #define MAX_NUM_TOKENS 64
-void shwo_manual(void);
+void show_manual(void);
 
 
 
@@ -102,9 +102,10 @@ int main(int argc, char* argv[]) {
 
         int back=0;
         while(1) {
-
+        	
+		char s[1000];
                 bzero(line, sizeof(line));
-                printf("<<Arya>> ");
+                printf("<Shell>%s " ,getcwd(s,1000));
 
                 scanf("%[^\n]", line);
                 getchar();
@@ -281,7 +282,7 @@ int main(int argc, char* argv[]) {
                        {
                         stat(de->d_name,&buf);
                         
-                        // File Type
+
                         if(S_ISDIR(buf.st_mode))
                          printf("d");
                         else if(S_ISREG(buf.st_mode))
@@ -296,7 +297,7 @@ int main(int argc, char* argv[]) {
                          printf("p");
                         else if(S_ISSOCK(buf.st_mode))
                          printf("s");
-                        //File Permissions P-Full Permissions AP-Actual Permissions
+
                         for(i=0,j=(1<<8);i<9;i++,j>>=1)
                          AP[i]= (buf.st_mode & j ) ? P[i] : '-' ;
                         printf("%s",AP);
@@ -321,17 +322,28 @@ int main(int argc, char* argv[]) {
 
                    }}
                    if(strcmp(tokens[0], "sudo") == 0 && strcmp(tokens[1], "apt") == 0 && strcmp(tokens[2], "install") == 0) {
-                                pid_t pid = fork();
-                                if(pid == 0) {
-                                    if(execvp("apt", tokens + 1) < 0) {
-                                        perror("ERROR: Failed to execute sudo apt install");
-                                        exit(1);
-                                    }
-                                } else {
-                                    wait(NULL);
-                                }
-                                continue;
-                            }
+			    pid_t pid = fork();
+			    if(pid == 0) {
+				// Combine "sudo" and the rest of the arguments correctly
+				char **new_tokens = malloc((argc + 1) * sizeof(char *));
+				new_tokens[0] = "sudo"; // The command to execute
+				for (int i = 1; tokens[i - 1] != NULL; i++) {
+				    new_tokens[i] = tokens[i - 1];
+				}
+
+				if(execvp(new_tokens[0], new_tokens) < 0) {
+				    perror("ERROR: Failed to execute sudo apt install");
+				    free(new_tokens); // Clean up memory
+				    exit(1);
+				}
+			    } else if (pid > 0) {
+				wait(NULL); // Wait for child process
+			    } else {
+				perror("ERROR: Fork failed");
+			    }
+			    continue;
+			}
+
 
     pid_t pid = fork();
                 for(i=0;tokens[i+1]!=NULL;i++);
